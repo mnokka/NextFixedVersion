@@ -4,9 +4,16 @@ import com.atlassian.jira.component.ComponentAccessor
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 
+import com.atlassian.jira.issue.Issue
+import com.atlassian.jira.issue.MutableIssue
+
+
+
 def versionManager = ComponentAccessor.getVersionManager()
 def projectManager = ComponentAccessor.getProjectManager()
 def project = projectManager.getProjectObjByKey(issue.projectObject.key)
+
+
 
 def versions = versionManager.getVersions(project)
 
@@ -33,4 +40,11 @@ log.debug("All elements: " + newversions)
 //}
 
 def versionToUse = newversions.first();
+
+MutableIssue myIssue = issue
+myIssue.setFixVersions([versionToUse])
+myIssue.store() // needed to store changes
+
+
+
 log.info("---------- FindNextVersion stopped ---------------------------------------")
