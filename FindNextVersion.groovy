@@ -20,30 +20,36 @@ def versions = versionManager.getVersions(project)
 def newversions = versions.collect()
   
 def log = Logger.getLogger("FindNextVersion")
-log.setLevel(Level.DEBUG)
+log.setLevel(Level.INFO) // DEBUG INFO
   
 log.info("---------- FindNextVersion started ---------------------------------------")
-//log.debug newversions
-//newversions.eachWithIndex { version, i ->
-	//log.debug "${version.description} - ${version.name} - ${version.released}"
-//}
 
+
+def Project=issue.projectObject.name
 //versions.sort {it.releaseDate}
 newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>version2.releaseDate}).findAll{version -> ! version.released }
 
-log.debug("First element: " + newversions.first())
-log.debug("All elements: " + newversions)
 
 
-//newversions.eachWithIndex { version, i ->
-	//log.debug "${version.description} - ${version.name} - ${version.released}"
-//}
+if (newversions) {
+	log.debug("First element: " + newversions.first())
+	log.debug("All elements: " + newversions)
+	
+	def versionToUse = newversions.first();
+	
+	
+	MutableIssue myIssue = issue
+	myIssue.setFixVersions([versionToUse])
+	myIssue.store() // needed to store changes
+	log.info("Set version:${versionToUse} as fixed version for issue:${issue}")
+}
 
-def versionToUse = newversions.first();
+else {
+	
+	log.error("Project:${Project} ==> ERROR: No open versions found. Cannot set issue:${issue} fixed version")
+}
 
-MutableIssue myIssue = issue
-myIssue.setFixVersions([versionToUse])
-myIssue.store() // needed to store changes
+
 
 
 
