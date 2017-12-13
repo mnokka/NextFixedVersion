@@ -2,8 +2,10 @@
 
 // Modifications:
 // Added setting Issue fixVersion to next available (time) version
-// To be used as Jira Script Runner Behaviours / Initializer  (version is set when issue created)
+// To be used as Jira Script Runner Behaviours / Initializer  (version is set when issue created. In the Create Issue screen)
 // (can be used as postfuntion, but remove package declarion and install to normal Jira scripts directory)
+// Script Runner examples made this possible!
+//
 // Dec 2017    mika.nokka1@gmail.com   
 
 
@@ -11,13 +13,11 @@ package com.onresolve.jira.groovy.doit2  // this script must be living under thi
 import com.atlassian.jira.component.ComponentAccessor
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
-
 import com.atlassian.jira.issue.Issue
 import com.atlassian.jira.issue.MutableIssue
 import com.onresolve.jira.groovy.user.FieldBehaviours   // class to be used if script in server
 import com.atlassian.jira.issue.IssueManager
-
-import static com.atlassian.jira.issue.IssueFieldConstants.*  // can use things like AFFECTED_VERSIONS
+import static com.atlassian.jira.issue.IssueFieldConstants.*  // can use things like AFFECTED_VERSIONS see: https://docs.atlassian.com/software/jira/docs/api/7.6.1/constant-values.html#com.atlassian.jira.issue.IssueFieldConstants.FIX_FOR_VERSIONS
 
 public class FindNextVersions extends FieldBehaviours {
 
@@ -28,12 +28,7 @@ void Doit2() {	// just a method runtime system is calling (used in Behaviours co
 	
 		log.info("---------- FindNextVersion started ---------------------------------------")
 		
-
-	
-		//def issue=underlyingIssue // from ScriptRunner example code
-		
-	
-		
+		//def issue=underlyingIssue // from ScriptRunner example code		
 		def versionManager = ComponentAccessor.getVersionManager()
 		def projectManager = ComponentAccessor.getProjectManager()
 		def project = projectManager.getProjectObjByKey(issueContext.projectObject.key)
@@ -62,12 +57,12 @@ newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>ver
 			//MutableIssue myIssue = issue
 			//myIssue.setFixVersions([versionToUse])
 			//myIssue.store() // needed to store changes
-			getFieldById(FIX_FOR_VERSIONS).setFormValue([versionToUse.id])
-			log.info("WOULD LIKE TO Set version:${versionToUse} as fixed version for issue:${issue}")
+			getFieldById(FIX_FOR_VERSIONS).setFormValue([versionToUse.id])  // from Script Runner examples, just used fixed versions thing
+			log.info("Set version:${versionToUse} as fixed version for current Create issue screen")
 		}
 
 		else {
-			log.error("Project:${Project} ==> ERROR: No open versions found. Cannot set issue:${issue} fixed version")
+			log.error("Project:${Project} ==> ERROR: No open versions found. Cannot set Create issue screen fixed version")
 		}
 
 
