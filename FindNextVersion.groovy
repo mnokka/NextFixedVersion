@@ -27,8 +27,8 @@ void Doit2() {	// just a method runtime system is calling (used in Behaviours co
 		log.setLevel(Level.DEBUG) // DEBUG INFO
 	
 		log.info("---------- FindNextVersion started ---------------------------------------")
-		
-		//def issue=underlyingIssue // from ScriptRunner example code		
+		def issue="NOT_EXISTS"
+		issue=underlyingIssue // from ScriptRunner example code		
 		def versionManager = ComponentAccessor.getVersionManager()
 		def projectManager = ComponentAccessor.getProjectManager()
 		def project = projectManager.getProjectObjByKey(issueContext.projectObject.key)
@@ -42,11 +42,23 @@ void Doit2() {	// just a method runtime system is calling (used in Behaviours co
 		def newversions = versions.collect()
 		//log.info("issuekey:${issuekey}  issue:${issue}")
 
-		def issue="NOT_EXISTS"
+		//log.debug("ISSUE: ${issue}")
+		//if (issue == null) {
+		//	log.debug ("NULL ISSUE")
+		//}
+		
+		//if (issue != null) {
+		//	log.debug ("REAL ISSUE: ${issue}")
+		//}
+		
 		def Project="NOT_SET"
 newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>version2.releaseDate}).findAll{version -> ! version.released }
 
+action= getActionName()
+//log.debug("action:${action}")
 
+
+if (action == "Create") {
 		if (newversions) {
 			log.debug("First element: " + newversions.first())
 			log.debug("All elements: " + newversions)
@@ -57,16 +69,25 @@ newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>ver
 			//MutableIssue myIssue = issue
 			//myIssue.setFixVersions([versionToUse])
 			//myIssue.store() // needed to store changes
-			getFieldById(FIX_FOR_VERSIONS).setFormValue([versionToUse.id])  // from Script Runner examples, just used fixed versions thing
-			log.info("Set version:${versionToUse} as fixed version for current Create issue screen")
+			//oldvalue=getFieldById(getFieldChanged()).getValue() as String
+			//log.info("OLD VALUE: ${oldvalue}")  // THIS IS ALWAYS NULL IT DOES HOLD THE CONTENT OF THE FIXED VERSIO FIELD
+			
+		
+				getFieldById(FIX_FOR_VERSIONS).setFormValue([versionToUse.id])  // from Script Runner examples, just used fixed versions thing
+				log.info("Set version:${versionToUse} as fixed version for current Create issue screen")
+				
+			
 		}
 
 		else {
 			log.error("Project:${Project} ==> ERROR: No open versions found. Cannot set Create issue screen fixed version")
 		}
 
+}
 
-
+else {
+	log.info("Not Create action. Maybe existing issue:${issue}. NOT CHANGING ANYTHING")
+}
 
 
 		log.info("---------- FindNextVersion stopped ---------------------------------------")
