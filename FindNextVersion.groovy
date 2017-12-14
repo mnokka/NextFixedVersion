@@ -24,72 +24,44 @@ public class FindNextVersions extends FieldBehaviours {
 void Doit2() {	// just a method runtime system is calling (used in Behaviours configurations)
 	
 		def log = Logger.getLogger("FindNextVersion")
-		log.setLevel(Level.DEBUG) // DEBUG INFO
+		log.setLevel(Level.INFO) // DEBUG INFO
 	
-		log.info("---------- FindNextVersion started ---------------------------------------")
+		log.debug("---------- FindNextVersion started ---------------------------------------")
 		def issue="NOT_EXISTS"
 		issue=underlyingIssue // from ScriptRunner example code		
 		def versionManager = ComponentAccessor.getVersionManager()
 		def projectManager = ComponentAccessor.getProjectManager()
 		def project = projectManager.getProjectObjByKey(issueContext.projectObject.key)
 		def versions = versionManager.getVersions(project)
-		def issueManager = ComponentAccessor.getIssueManager()
-		
-		// Of course issue does not exists, this code colled when create screen is opened
-		//def issuekey=underlyingIssue // from ScriptRunner example code		
-		// Should use Behaviours way to get, this is standard
-		//Issue issue = issueManager.getIssueObject("${issuekey}")  // use really as a string
+		//def issueManager = ComponentAccessor.getIssueManager()
 		def newversions = versions.collect()
-		//log.info("issuekey:${issuekey}  issue:${issue}")
+		newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>version2.releaseDate}).findAll{version -> ! version.released }
 
-		//log.debug("ISSUE: ${issue}")
-		//if (issue == null) {
-		//	log.debug ("NULL ISSUE")
-		//}
-		
-		//if (issue != null) {
-		//	log.debug ("REAL ISSUE: ${issue}")
-		//}
-		
-		def Project="NOT_SET"
-newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>version2.releaseDate}).findAll{version -> ! version.released }
+		action= getActionName()
+		log.debug("action:${action}")
 
-action= getActionName()
-//log.debug("action:${action}")
-
-
-if (action == "Create") {
-		if (newversions) {
-			log.debug("First element: " + newversions.first())
-			log.debug("All elements: " + newversions)
+		if (action == "Create") {
+			if (newversions) {
+				log.debug("First element: " + newversions.first())
+				log.debug("All elements: " + newversions)
 	
-			def versionToUse = newversions.first();
-	
-	
-			//MutableIssue myIssue = issue
-			//myIssue.setFixVersions([versionToUse])
-			//myIssue.store() // needed to store changes
-			//oldvalue=getFieldById(getFieldChanged()).getValue() as String
-			//log.info("OLD VALUE: ${oldvalue}")  // THIS IS ALWAYS NULL IT DOES HOLD THE CONTENT OF THE FIXED VERSIO FIELD
-			
-		
+				def versionToUse = newversions.first();
 				getFieldById(FIX_FOR_VERSIONS).setFormValue([versionToUse.id])  // from Script Runner examples, just used fixed versions thing
 				log.info("Set version:${versionToUse} as fixed version for current Create issue screen")
-				
-			
+			}
+
+			else {
+				log.error("${project} ==> ERROR: No open versions found. Cannot set Create issue screen fixed version")
+				return
+			}
 		}
 
 		else {
-			log.error("Project:${Project} ==> ERROR: No open versions found. Cannot set Create issue screen fixed version")
+			log.debug("Not Create action. Maybe existing issue:${issue}. NOT CHANGING ANYTHING")
+			return
 		}
 
-}
 
-else {
-	log.info("Not Create action. Maybe existing issue:${issue}. NOT CHANGING ANYTHING")
-}
-
-
-		log.info("---------- FindNextVersion stopped ---------------------------------------")
+		log.debug("---------- FindNextVersion stopped ---------------------------------------")
 	}
 }
