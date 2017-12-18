@@ -35,7 +35,7 @@ void Doit2() {	// just a method runtime system is calling (used in Behaviours co
 		def versions = versionManager.getVersions(project)
 		//def issueManager = ComponentAccessor.getIssueManager()
 		def newversions = versions.collect()
-		newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>version2.releaseDate}).findAll{version -> ! version.released }
+		newversions = newversions.sort({version1, version2 -> version1.releaseDate<=>version2.releaseDate}).findAll{version ->  (! version.released && version.releaseDate) }
 
 		action= getActionName()
 		log.debug("action:${action}")
